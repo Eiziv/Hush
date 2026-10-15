@@ -11,6 +11,7 @@ A World of Warcraft addon that puts each whisper conversation in its own clean w
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
 - `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and new whispers to it are counted on the minimap button instead of popping it up (optional).
 - The minimap button (also in the addon list under the minimap) lists your open and recent conversations. Right-click it for settings.
+- With NaowhUI's top bar, Hush takes the Guild button's place and shows your unread whispers there (optional). NaowhUI's own button stays underneath, untouched. Friends, Hearthstone and M+ Portals get simple icons to match (optional; only the pictures change).
 - The last 100 lines per person are kept for 30 days.
 - Font follows your EllesmereUI font by default. Any SharedMedia font works, or a file of your own.
 

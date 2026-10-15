@@ -164,10 +164,12 @@ function ns.UpdateMinimapButton()
 end
 
 function ns.UpdateBadge()
-	if not button then return end
 	local total = ns.UnreadTotal()
-	button.badge:SetShown(total > 0)
-	button.badge.text:SetText(total > 9 and "9+" or total)
+	if button then
+		button.badge:SetShown(total > 0)
+		button.badge.text:SetText(total > 9 and "9+" or total)
+	end
+	ns.UpdateTopBarCount(total)
 end
 
 -- The addon compartment, the list under the minimap's addon button.

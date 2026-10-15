@@ -57,6 +57,8 @@ function ns.BuildOptions()
 	end)
 
 	Settings.CreateCheckbox(category, Setting("showMinimap", "Minimap button", ns.UpdateMinimapButton), "Click for your conversations, right-click for these settings. Hush is also in the addon list under the minimap.")
+	Settings.CreateCheckbox(category, Setting("topBar", "Hush on NaowhUI's top bar", ns.UpdateTopBar), "Takes the Guild button's place on NaowhUI's top bar and shows your unread whispers. Turning it off brings Guild back.")
+	Settings.CreateCheckbox(category, Setting("cleanIcons", "Simple icons on NaowhUI's top bar", ns.UpdateTopBar), "Plain icons for Friends, Hearthstone and M+ Portals, matching Hush's. Only the pictures change.")
 	Settings.CreateCheckbox(category, Setting("popMinimized", "New whispers reopen minimized windows"), "Off: a minimized window stays down and the minimap button counts its new lines.")
 	Settings.CreateCheckbox(category, Setting("hideInChat", "Hide whispers from the normal chat"), "While the game locks chat for addons (encounters, keys, PvP matches) whispers show in the normal chat anyway, and move into their window afterwards.")
 	Settings.CreateCheckbox(category, Setting("sound", "Whisper sound"))

@@ -9,11 +9,12 @@
 ## AddonCompartmentFuncOnEnter: Hush_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: Hush_OnAddonCompartmentLeave
 ## SavedVariables: HushDB
-## OptionalDeps: EllesmereUI, LibSharedMedia-3.0
+## OptionalDeps: EllesmereUI, LibSharedMedia-3.0, NaowhUI_EUI
 
 Core.lua
 Bubbles.lua
 Window.lua
 Takeover.lua
 Minimap.lua
+TopBar.lua
 Options.lua

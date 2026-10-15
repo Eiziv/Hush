@@ -14,6 +14,8 @@ ns.DEFAULTS = {
 	keepFocus = false,
 	popMinimized = false,
 	showMinimap = true,
+	topBar = true, -- take the guild button's place on NaowhUI's top bar
+	cleanIcons = true, -- simpler icons for NaowhUI's other top bar buttons
 	minimapAngle = 210,
 	width = 360,
 	height = 220,
@@ -365,10 +367,12 @@ local function Init()
 	frame:RegisterEvent("UPDATE_BINDINGS")
 	frame:RegisterEvent("ADDON_ACTION_BLOCKED")
 	frame:RegisterEvent("ADDON_ACTION_FORBIDDEN")
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD") -- NaowhUI may build its top bar after login
 
 	ns.UpdateReplyBinding()
 	ns.InitTakeover()
 	ns.UpdateMinimapButton()
+	ns.UpdateTopBar()
 	ns.BuildOptions()
 end
 
@@ -408,6 +412,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
 		ns.UpdateReplyBinding()
 	elseif event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN" then
 		ns.OnActionBlocked(...)
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		ns.UpdateTopBar()
 	elseif event == "PLAYER_LOGIN" then
 		Init()
 	end
