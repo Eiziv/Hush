@@ -68,7 +68,15 @@ function ns.BuildOptions()
 end
 
 function ns.OpenOptions()
-	if category then
-		Settings.OpenToCategory(category:GetID())
+	if not category then
+		ns.Print("The settings page did not load. BugSack should have the error.")
+		return
 	end
+	Settings.OpenToCategory(category:GetID())
+	-- If the game refuses, say so rather than doing nothing. One check, a frame later.
+	C_Timer.After(0, function()
+		if SettingsPanel and not SettingsPanel:IsShown() then
+			ns.Print("The game did not open the settings. Esc > Options > AddOns > Hush gets there too.")
+		end
+	end)
 end

@@ -45,8 +45,10 @@ local function AddConvo(root, c)
 	root:CreateButton(Label(c), function() ns.Open(c, true) end)
 end
 
-function ns.ShowMenu(owner)
-	MenuUtil.CreateContextMenu(owner, function(_, root)
+-- The menu opens at the cursor rather than on the button: a menu closes as soon as its owner
+-- is hidden, and EllesmereUI's button flyout hides on the very click that picks an entry.
+function ns.ShowMenu()
+	MenuUtil.CreateContextMenu(nil, function(_, root)
 		root:CreateTitle("Hush")
 		local active = ns.ActiveConvos()
 		for _, c in ipairs(active) do
@@ -85,12 +87,12 @@ local function ShowTooltip(owner)
 	GameTooltip:Show()
 end
 
-local function OnClick(owner, mouseButton)
+local function OnClick(_, mouseButton)
 	GameTooltip:Hide()
 	if mouseButton == "RightButton" then
 		ns.OpenOptions()
 	else
-		ns.ShowMenu(owner)
+		ns.ShowMenu()
 	end
 end
 
@@ -169,8 +171,8 @@ function ns.UpdateBadge()
 end
 
 -- The addon compartment, the list under the minimap's addon button.
-function Hush_OnAddonCompartmentClick(_, mouseButton, menuButton)
-	OnClick(menuButton or UIParent, mouseButton)
+function Hush_OnAddonCompartmentClick(_, mouseButton)
+	OnClick(nil, mouseButton)
 end
 
 function Hush_OnAddonCompartmentEnter(_, menuButton)

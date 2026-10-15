@@ -106,10 +106,21 @@ end
 
 local warned = false
 
+local CHAT_SENDS = { "SendChatMessage", "SendWhisper" }
+
 function ns.OnActionBlocked(blamed, func)
-	if blamed ~= addonName or warned then return end
-	warned = true
-	ns.Print(("The game blocked %s because Hush took over a whisper from the chat box earlier. /reload fixes it for now. To stop it happening, turn off \"Take over /w and Whisper buttons\" in /hush."):format(func or "a chat message"))
+	if blamed ~= addonName then return end
+	func = func or "an action"
+	local fromChat = false
+	for _, name in ipairs(CHAT_SENDS) do
+		if func:find(name, 1, true) then fromChat = true end
+	end
+	if not fromChat then
+		ns.Print(("The game blocked %s and blamed Hush."):format(func))
+	elseif not warned and takeovers > 0 then
+		warned = true
+		ns.Print(("The game blocked %s because Hush took over a whisper from the chat box earlier. /reload fixes it for now. To stop it happening, turn off \"Take over /w and Whisper buttons\" in /hush."):format(func))
+	end
 end
 
 function ns.Check()
