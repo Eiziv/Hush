@@ -33,13 +33,13 @@ local function CloseChatBox(editBox)
 end
 
 local function MoveInto(editBox, c, text)
-	local wasOpen = c.frame ~= nil
+	local wasOpen, wasShown = c.frame ~= nil, c.frame ~= nil and c.frame:IsShown()
 	CloseChatBox(editBox)
 	ns.Open(c, true)
 	if text and text ~= "" then
 		c.frame.box:SetText(text)
 	end
-	last = { convo = c, wasOpen = wasOpen, time = GetTime() }
+	last = { convo = c, wasOpen = wasOpen, wasShown = wasShown, time = GetTime() }
 end
 
 local function OnUpdateHeader(editBox)
@@ -80,6 +80,7 @@ local function OnProcessChatType(editBox, msg, index)
 		ns.Close(recent.convo)
 	elseif stale then
 		stale.box:SetText("")
+		if not recent.wasShown then stale:Hide() end -- back to minimized
 	end
 	ns.Open(c, true)
 	if text and text ~= "" then c.frame.box:SetText(text) end

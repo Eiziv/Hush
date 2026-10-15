@@ -4,10 +4,15 @@
 ## Author: Gustaf Granström
 ## Version: 0.1.0
 ## Category: Chat
+## IconTexture: Interface\AddOns\Hush\media\icon.png
+## AddonCompartmentFunc: Hush_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: Hush_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: Hush_OnAddonCompartmentLeave
 ## SavedVariables: HushDB
 ## OptionalDeps: EllesmereUI, LibSharedMedia-3.0
 
 Core.lua
 Window.lua
 Takeover.lua
+Minimap.lua
 Options.lua

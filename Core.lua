@@ -12,6 +12,9 @@ ns.DEFAULTS = {
 	takeOverReply = true,
 	takeOverWhispers = true,
 	keepFocus = false,
+	popMinimized = false,
+	showMinimap = true,
+	minimapAngle = 210,
 	width = 360,
 	height = 220,
 	-- x, y: where the top left corner of the next window goes, saved when a window is moved
@@ -179,6 +182,21 @@ local function Focus(c)
 	end
 end
 
+-- Saved conversations without a window, newest first.
+function ns.RecentConvos(limit)
+	local keys = {}
+	for key in pairs(db.history) do
+		if not (convos[key] and convos[key].frame) then keys[#keys + 1] = key end
+	end
+	table.sort(keys, function(a, b) return db.history[a].t > db.history[b].t end)
+	local list = {}
+	for i = 1, math.min(limit, #keys) do
+		local h = db.history[keys[i]]
+		list[i] = Wrap(keys[i], h.kind, h.target)
+	end
+	return list
+end
+
 function ns.ReplyTarget()
 	return lastIn or MostRecent()
 end
@@ -214,7 +232,10 @@ local function HandleWhisper(event, text, sender, guid, bnID, replayed)
 		lastOut = c
 	end
 
-	ns.Open(c)
+	-- A minimized window stays down: the minimap button counts the unread lines.
+	if not ns.IsMinimized(c) or db.popMinimized then
+		ns.Open(c)
+	end
 	ns.AddLine(c, inbound, text)
 	if inbound then
 		ns.MarkUnread(c)
@@ -347,6 +368,7 @@ local function Init()
 
 	ns.UpdateReplyBinding()
 	ns.InitTakeover()
+	ns.UpdateMinimapButton()
 	ns.BuildOptions()
 end
 

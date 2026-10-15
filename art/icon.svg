@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141c21"/>
+      <stop offset="1" stop-color="#070b0d"/>
+    </linearGradient>
+    <linearGradient id="bubble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5cf5c9"/>
+      <stop offset="0.55" stop-color="#0cd29d"/>
+      <stop offset="1" stop-color="#079a73"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#0cd29d" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#0cd29d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="93" fill="none" stroke="#0cd29d" stroke-opacity="0.18" stroke-width="6"/>
+  <circle cx="256" cy="240" r="240" fill="url(#glow)"/>
+  <g transform="translate(256 262) scale(1.32) translate(-256 -257)">
+    <path d="M 168 120 H 344 A 64 64 0 0 1 408 184 V 272 A 64 64 0 0 1 344 336 H 236 L 164 394 L 182 336 H 168 A 64 64 0 0 1 104 272 V 184 A 64 64 0 0 1 168 120 Z" fill="url(#bubble)" stroke="#04140f" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M 168 130 H 344 A 54 54 0 0 1 398 184 V 196 H 114 V 184 A 54 54 0 0 1 168 130 Z" fill="#ffffff" fill-opacity="0.16"/>
+    <g fill="#04231a">
+      <circle cx="194" cy="232" r="22"/>
+      <circle cx="256" cy="232" r="22"/>
+      <circle cx="318" cy="232" r="22"/>
+    </g>
+  </g>
+</svg>

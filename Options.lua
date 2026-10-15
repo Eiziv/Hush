@@ -56,6 +56,8 @@ function ns.BuildOptions()
 		return ("%d%%"):format(value * 100 + 0.5)
 	end)
 
+	Settings.CreateCheckbox(category, Setting("showMinimap", "Minimap button", ns.UpdateMinimapButton), "Click for your conversations, right-click for these settings. Hush is also in the addon list under the minimap.")
+	Settings.CreateCheckbox(category, Setting("popMinimized", "New whispers reopen minimized windows"), "Off: a minimized window stays down and the minimap button counts its new lines.")
 	Settings.CreateCheckbox(category, Setting("hideInChat", "Hide whispers from the normal chat"), "While the game locks chat for addons (encounters, keys, PvP matches) whispers show in the normal chat anyway, and move into their window afterwards.")
 	Settings.CreateCheckbox(category, Setting("sound", "Whisper sound"))
 	Settings.CreateCheckbox(category, Setting("takeOverReply", "Reply key opens Hush", ns.UpdateReplyBinding), "Your reply key (R by default) opens the last whisper window instead of the chat box. It goes back to the normal reply while the game locks chat for addons.")

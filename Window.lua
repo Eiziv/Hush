@@ -13,14 +13,16 @@ local OWN_NAME_COLOR = "ff8a8f94"
 local TOOLTIP_LINKS = { item = true, spell = true, achievement = true, quest = true, currency = true, enchant = true, talent = true, mount = true }
 
 local font = CreateFont("HushFont")
-local pool, active = {}, {}
+local pool, active = {}, {} -- active: windows with a conversation, open or minimized
+local windowCount = 0
 
 local function Accent()
 	if EllesmereUI and EllesmereUI.GetAccentColor then
 		return EllesmereUI.GetAccentColor()
 	end
-	return 0.05, 0.82, 0.62
+	return 12 / 255, 210 / 255, 157 / 255
 end
+ns.Accent = Accent
 
 local function FontPath()
 	local name = ns.db.font
@@ -37,6 +39,7 @@ local function FontPath()
 	end
 	return STANDARD_TEXT_FONT
 end
+ns.FontPath = FontPath
 
 local function UpdateFont()
 	local db = ns.db
@@ -78,9 +81,32 @@ end
 function ns.MarkUnread(c)
 	local f = c.frame
 	if f and not f.box:HasFocus() then
-		c.unread = true
+		c.unread = (c.unread or 0) + 1
 		f.dot:Show()
+		ns.UpdateBadge()
 	end
+end
+
+function ns.IsMinimized(c)
+	return c.frame ~= nil and not c.frame:IsShown()
+end
+
+function ns.UnreadTotal()
+	local total = 0
+	for _, f in ipairs(active) do
+		total = total + (f.convo.unread or 0)
+	end
+	return total
+end
+
+-- Conversations with a window, open or minimized, newest message first.
+function ns.ActiveConvos()
+	local list = {}
+	for _, f in ipairs(active) do
+		list[#list + 1] = f.convo
+	end
+	table.sort(list, function(a, b) return a.h.t > b.h.t end)
+	return list
 end
 
 local function Style(f)
@@ -104,7 +130,6 @@ local function SavePosition(f)
 end
 
 local function Close(f)
-	f.box:ClearFocus()
 	f.box:SetText("")
 	f:Hide()
 	local c = f.convo
@@ -112,6 +137,7 @@ local function Close(f)
 	f.convo = nil
 	tDeleteItem(active, f)
 	pool[#pool + 1] = f
+	ns.UpdateBadge()
 end
 
 local function Edge(f, from, to)
@@ -131,7 +157,12 @@ local function Divider(parent, point, relativePoint)
 end
 
 local function CreateWindow()
-	local f = CreateFrame("Frame", nil, UIParent)
+	-- Named, because Escape closes the frames listed in UISpecialFrames by name. For Hush
+	-- windows that means minimizing: hidden, but the conversation stays in the list.
+	windowCount = windowCount + 1
+	local name = "HushWindow" .. windowCount
+	local f = CreateFrame("Frame", name, UIParent)
+	tinsert(UISpecialFrames, name)
 	f:SetFrameStrata("MEDIUM")
 	f:SetToplevel(true)
 	f:SetClampedToScreen(true)
@@ -140,6 +171,11 @@ local function CreateWindow()
 	f:SetResizeBounds(220, 120)
 	f:EnableMouse(true)
 	f:Hide()
+
+	f:SetScript("OnHide", function()
+		f.box:ClearFocus()
+		ns.UpdateBadge()
+	end)
 
 	f.bg = f:CreateTexture(nil, "BACKGROUND")
 	f.bg:SetAllPoints()
@@ -150,7 +186,7 @@ local function CreateWindow()
 	PixelUtil.SetWidth(Edge(f, "TOPLEFT", "BOTTOMLEFT"), 1)
 	PixelUtil.SetWidth(Edge(f, "TOPRIGHT", "BOTTOMRIGHT"), 1)
 
-	-- Header: name, unread dot, close button. Dragging it moves the window.
+	-- Header: name, unread dot, minimize and close buttons. Dragging it moves the window.
 	local header = CreateFrame("Frame", nil, f)
 	header:SetPoint("TOPLEFT")
 	header:SetPoint("TOPRIGHT")
@@ -192,6 +228,18 @@ local function CreateWindow()
 	close:SetScript("OnLeave", function(self) self:SetAlpha(0.45) end)
 	close:SetScript("OnClick", function() Close(f) end)
 
+	local minimize = CreateFrame("Button", nil, header)
+	minimize:SetSize(HEADER_HEIGHT, HEADER_HEIGHT)
+	minimize:SetPoint("RIGHT", close, "LEFT", 4, 0)
+	minimize:SetAlpha(0.45)
+	local bar = minimize:CreateTexture(nil, "ARTWORK")
+	bar:SetColorTexture(1, 1, 1)
+	bar:SetSize(10, 1.5)
+	bar:SetPoint("CENTER", 0, -4)
+	minimize:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
+	minimize:SetScript("OnLeave", function(self) self:SetAlpha(0.45) end)
+	minimize:SetScript("OnClick", function() f:Hide() end)
+
 	-- Input
 	local box = CreateFrame("EditBox", nil, f)
 	box:SetPoint("BOTTOMLEFT", 1, 1)
@@ -220,12 +268,13 @@ local function CreateWindow()
 		end
 		if not ns.db.keepFocus then self:ClearFocus() end
 	end)
-	box:SetScript("OnEscapePressed", box.ClearFocus)
+	box:SetScript("OnEscapePressed", function() f:Hide() end)
 	box:SetScript("OnTextChanged", function(self) f.hint:SetShown(self:GetText() == "") end)
 	box:SetScript("OnEditFocusGained", function()
 		ns.focusedBox = box
 		f.convo.unread = nil
 		f.dot:Hide()
+		ns.UpdateBadge()
 		local r, g, b = Accent()
 		SetBorderColor(f, r, g, b, 0.5)
 	end)
@@ -297,6 +346,18 @@ function ns.Close(c)
 	if c.frame then Close(c.frame) end
 end
 
+function ns.MinimizeAll()
+	for _, f in ipairs(active) do
+		f:Hide()
+	end
+end
+
+function ns.CloseAll()
+	for i = #active, 1, -1 do
+		Close(active[i])
+	end
+end
+
 -- New windows open where the last one was moved to, stepped so they don't cover each other.
 local function Place(f)
 	local db = ns.db
@@ -326,6 +387,8 @@ function ns.Open(c, focus)
 		end
 		f.messages:ScrollToBottom()
 		f:Show()
+	elseif not f:IsShown() then
+		f:Show() -- restore a minimized window where it was
 	end
 	f.title:SetText("|c" .. ns.NameColor(c) .. ns.DisplayName(c) .. "|r")
 	f:Raise()
