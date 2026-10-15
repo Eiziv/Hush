@@ -5,14 +5,10 @@ local INPUT_HEIGHT = 28
 local BG = { 0.03, 0.045, 0.05 } -- EllesmereUI's chat background
 local BORDER = { 1, 1, 1, 0.12 }
 local DIVIDER = { 1, 1, 1, 0.06 }
-local TEXT_IN = { 0.93, 0.93, 0.93 }
-local TEXT_OUT = { 0.66, 0.68, 0.7 }
-local TEXT_NOTICE = { 0.55, 0.57, 0.6 }
-local TIME_COLOR = "ff5f6468"
-local OWN_NAME_COLOR = "ff8a8f94"
-local TOOLTIP_LINKS = { item = true, spell = true, achievement = true, quest = true, currency = true, enchant = true, talent = true, mount = true }
+local LIST_INSET = 10 -- between the window edge and the message list
 
 local font = CreateFont("HushFont")
+local smallFont = CreateFont("HushSmallFont") -- times and notices
 local pool, active = {}, {} -- active: windows with a conversation, open or minimized
 local windowCount = 0
 
@@ -43,11 +39,14 @@ ns.FontPath = FontPath
 
 local function UpdateFont()
 	local db = ns.db
-	if font:SetFont(FontPath(), db.fontSize, db.outline) == false then
-		font:SetFont(STANDARD_TEXT_FONT, db.fontSize, db.outline)
+	local path = FontPath()
+	for object, size in pairs({ [font] = db.fontSize, [smallFont] = math.max(db.fontSize - 3, 7) }) do
+		if object:SetFont(path, size, db.outline) == false then
+			object:SetFont(STANDARD_TEXT_FONT, size, db.outline)
+		end
+		object:SetShadowOffset(1, -1)
+		object:SetShadowColor(0, 0, 0, db.shadow and 0.8 or 0)
 	end
-	font:SetShadowOffset(1, -1)
-	font:SetShadowColor(0, 0, 0, db.shadow and 0.8 or 0)
 end
 
 local function SetBorderColor(f, r, g, b, a)
@@ -62,20 +61,12 @@ local function ShortName(c)
 end
 
 function ns.ShowLine(f, line)
-	local stamp = date("%H:%M", line[1])
-	local name, color
-	if line[2] then
-		name, color = "|c" .. ns.NameColor(f.convo) .. ShortName(f.convo) .. "|r", TEXT_IN
-	else
-		name, color = "|c" .. OWN_NAME_COLOR .. UnitName("player") .. "|r", TEXT_OUT
-	end
-	f.messages:AddMessage(("|c%s%s|r  %s  %s"):format(TIME_COLOR, stamp, name, line[3]), color[1], color[2], color[3])
+	f.view:AddLine(line)
 end
 
 -- A line that is shown but not kept in history, like "Bob is away".
 function ns.Notice(c, text)
-	if not c.frame then return end
-	c.frame.messages:AddMessage(("|c%s%s|r  %s"):format(TIME_COLOR, date("%H:%M"), text), TEXT_NOTICE[1], TEXT_NOTICE[2], TEXT_NOTICE[3])
+	if c.frame then c.frame.view:AddNotice(text) end
 end
 
 function ns.MarkUnread(c)
@@ -119,7 +110,7 @@ local function Style(f)
 		SetBorderColor(f, unpack(BORDER))
 	end
 	-- Setting the font object again makes the message frame lay its lines out with the new size.
-	f.messages:SetFontObject(font)
+	f.view:Refresh()
 	f.box:SetFontObject(font)
 	f.title:SetFontObject(font)
 	f.hint:SetFontObject(font)
@@ -284,39 +275,12 @@ local function CreateWindow()
 	end)
 
 	-- Messages
-	local messages = CreateFrame("ScrollingMessageFrame", nil, f)
-	messages:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 10, -6)
-	messages:SetPoint("BOTTOMRIGHT", box, "TOPRIGHT", -10, 6)
-	messages:SetFading(false)
-	messages:SetMaxLines(200)
-	messages:SetJustifyH("LEFT")
-	messages:SetSpacing(2)
-	if messages.SetIndentedWordWrap then messages:SetIndentedWordWrap(true) end
-	messages:SetHyperlinksEnabled(true)
-	messages:EnableMouse(true)
-	messages:EnableMouseWheel(true)
-	messages:SetScript("OnMouseWheel", function(self, delta)
-		if IsShiftKeyDown() then
-			if delta > 0 then self:ScrollToTop() else self:ScrollToBottom() end
-		else
-			for _ = 1, 3 do
-				if delta > 0 then self:ScrollUp() else self:ScrollDown() end
-			end
-		end
+	f.view = ns.CreateMessageView(f, font, smallFont, function() box:SetFocus() end)
+	f.view.scroll:SetPoint("TOPLEFT", header, "BOTTOMLEFT", LIST_INSET, -6)
+	f.view.scroll:SetPoint("BOTTOMRIGHT", box, "TOPRIGHT", -LIST_INSET, 6)
+	f:SetScript("OnSizeChanged", function(_, width, height)
+		f.view:SetSize(width - 2 * LIST_INSET, height - HEADER_HEIGHT - INPUT_HEIGHT - 12)
 	end)
-	messages:SetScript("OnMouseUp", function() box:SetFocus() end)
-	messages:SetScript("OnHyperlinkClick", function(_, link, text, button)
-		SetItemRef(link, text, button, DEFAULT_CHAT_FRAME)
-	end)
-	messages:SetScript("OnHyperlinkEnter", function(self, link)
-		if TOOLTIP_LINKS[link:match("^(%a+):")] then
-			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-			GameTooltip:SetHyperlink(link)
-			GameTooltip:Show()
-		end
-	end)
-	messages:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
-	f.messages = messages
 
 	-- Resize grip: a small triangle of dots in the corner.
 	local grip = CreateFrame("Button", nil, f)
@@ -337,6 +301,7 @@ local function CreateWindow()
 		f:StopMovingOrSizing()
 		ns.db.width, ns.db.height = f:GetSize()
 		SavePosition(f)
+		f.view:Relayout() -- wraps the bubbles to the new width
 	end)
 
 	return f
@@ -363,6 +328,7 @@ local function Place(f)
 	local db = ns.db
 	local step = 24 * #active
 	f:SetSize(db.width, db.height)
+	f.view:SetSize(db.width - 2 * LIST_INSET, db.height - HEADER_HEIGHT - INPUT_HEIGHT - 12)
 	f:ClearAllPoints()
 	if db.x then
 		f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", db.x + step, db.y - step)
@@ -381,14 +347,15 @@ function ns.Open(c, focus)
 		f.convo, c.frame = c, f
 		Style(f)
 		f.hint:SetText("Whisper " .. ShortName(c))
-		f.messages:Clear()
+		f:Show() -- before filling, so the text is measured in a shown window
+		f.view:Clear()
 		for _, line in ipairs(c.h.lines) do
-			ns.ShowLine(f, line)
+			f.view:AddLine(line)
 		end
-		f.messages:ScrollToBottom()
-		f:Show()
+		f.view:ScrollToBottom()
 	elseif not f:IsShown() then
 		f:Show() -- restore a minimized window where it was
+		f.view:Relayout() -- lines that arrived while it was hidden are measured again
 	end
 	f.title:SetText("|c" .. ns.NameColor(c) .. ns.DisplayName(c) .. "|r")
 	f:Raise()

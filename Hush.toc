@@ -12,6 +12,7 @@
 ## OptionalDeps: EllesmereUI, LibSharedMedia-3.0
 
 Core.lua
+Bubbles.lua
 Window.lua
 Takeover.lua
 Minimap.lua

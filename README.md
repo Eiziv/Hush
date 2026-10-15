@@ -5,6 +5,7 @@
 A World of Warcraft addon that puts each whisper conversation in its own clean window, like WIM, without the extras. It is styled to sit next to EllesmereUI.
 
 - One window per person, for character whispers and Battle.net whispers.
+- Messages in bubbles like a chat app: theirs on the left, yours on the right in your EllesmereUI accent, with the time shown when a few minutes pass.
 - Whispers are taken out of the normal chat (optional).
 - `/w Name`, `/r`, right-click Whisper, the friends list and clicking a name all open Hush instead of the chat box, like WIM (can be turned off).
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
