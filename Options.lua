@@ -19,6 +19,20 @@ local function FontOptions()
 	return container:GetData()
 end
 
+local function SoundOptions()
+	local container = Settings.CreateControlTextContainer()
+	container:Add("hush", "Hush")
+	container:Add("whisper", "Game whisper sound")
+	local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+	if LSM then
+		for _, name in ipairs(LSM:List("sound")) do
+			if name ~= "None" then container:Add(name, name) end
+		end
+	end
+	container:Add("none", "None")
+	return container:GetData()
+end
+
 local function OutlineOptions()
 	local container = Settings.CreateControlTextContainer()
 	container:Add("", "None")
@@ -59,7 +73,9 @@ function ns.BuildOptions()
 	Settings.CreateCheckbox(category, Setting("showMinimap", "Minimap button", ns.UpdateMinimapButton), "Click for your conversations, right-click for these settings. Hush is also in the addon list under the minimap.")
 	Settings.CreateCheckbox(category, Setting("popMinimized", "New whispers reopen minimized windows"), "Off: a minimized window stays down and the minimap button counts its new lines.")
 	Settings.CreateCheckbox(category, Setting("hideInChat", "Hide whispers from the normal chat"), "While the game locks chat for addons (encounters, keys, PvP matches) whispers show in the normal chat anyway, and move into their window afterwards.")
-	Settings.CreateCheckbox(category, Setting("sound", "Whisper sound"))
+	Settings.CreateDropdown(category, Setting("messageSound", "Message sound", function(_, value)
+		ns.PlayMessageSound(value) -- hear it when picking
+	end), SoundOptions, "Plays when a whisper arrives. It plays on the master channel, so it is heard with sound effects turned down.")
 	Settings.CreateCheckbox(category, Setting("takeOverReply", "Reply key opens Hush", ns.UpdateReplyBinding), "Your reply key (R by default) opens the last whisper window instead of the chat box. It goes back to the normal reply while the game locks chat for addons.")
 	Settings.CreateCheckbox(category, Setting("takeOverWhispers", "Take over /w and Whisper buttons"), "/w Name, /r, right-click Whisper, the friends list and clicking names open Hush instead of the chat box, like WIM.\n\nThis closes Blizzard's chat box from addon code. During keys and raid bosses the game may then block messages typed in the normal chat box until you /reload. Hush tells you if that happens, and /hush check shows whether the chat box has been touched.")
 	Settings.CreateCheckbox(category, Setting("keepFocus", "Keep typing after sending"), "Off: Enter sends and hands the keyboard back to the game, like the normal chat.")

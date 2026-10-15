@@ -129,7 +129,15 @@ Ambiguate = function(name, mode) if mode == "short" then return (name:gsub("%-.*
 GetNormalizedRealmName = function() return "MyRealm" end
 UnitName = function() return "Me" end
 GetPlayerInfoByGUID = function() return "Mage", "MAGE" end
-PlaySound = function() end
+local played = {}
+PlaySound = function(id, channel) played[#played + 1] = { "kit:" .. id, channel } end
+PlaySoundFile = function(path, channel) played[#played + 1] = { path, channel } end
+local lsmSounds = { Ding = "Sound\\ding.ogg" }
+LibStub = function(name)
+	if name == "LibSharedMedia-3.0" then
+		return { Fetch = function(_, kind, key) return kind == "sound" and lsmSounds[key] or nil end, List = function() return {} end }
+	end
+end
 FlashClientIcon = function() end
 IsShiftKeyDown = function() return false end
 GameTooltip_Hide = function() end
@@ -532,6 +540,36 @@ do
 	local opened = optionsOpened
 	Hush.OpenSettings()
 	check(optionsOpened == opened + 1, "OpenSettings")
+end
+
+-- Message sound
+do
+	ns.CloseAll()
+	db.hideInChat = true
+	local function Last() return played[#played] end
+	local n = #played
+	Whisper("CHAT_MSG_WHISPER", "ding", "Bob-MyRealm", 70, "Player-1")
+	check(#played == n + 1 and Last()[1]:find("Hush\\media\\message.ogg", 1, true) and Last()[2] == "Master", "a whisper plays Hush's sound on the master channel")
+	n = #played
+	Whisper("CHAT_MSG_WHISPER_INFORM", "my reply", "Bob-MyRealm", 71)
+	check(#played == n, "no sound for your own messages")
+	db.messageSound = "whisper"
+	Whisper("CHAT_MSG_WHISPER", "ding", "Bob-MyRealm", 72, "Player-1")
+	check(Last()[1] == "kit:" .. SOUNDKIT.TELL_MESSAGE and Last()[2] == "Master", "or the game's whisper sound")
+	db.messageSound = "Ding"
+	Whisper("CHAT_MSG_WHISPER", "ding", "Bob-MyRealm", 73, "Player-1")
+	check(Last()[1] == "Sound\\ding.ogg", "or a SharedMedia sound")
+	db.messageSound = "none"
+	n = #played
+	Whisper("CHAT_MSG_WHISPER", "quiet", "Bob-MyRealm", 74, "Player-1")
+	check(#played == n, "or none")
+	db.messageSound = "hush"
+	db.hideInChat = false
+	Whisper("CHAT_MSG_WHISPER", "shown in chat", "Bob-MyRealm", 75, "Player-1")
+	check(#played == n, "no Hush sound when the normal chat shows the whisper and plays its own")
+	db.hideInChat = true
+	ns.PlayMessageSound("whisper")
+	check(Last()[1] == "kit:" .. SOUNDKIT.TELL_MESSAGE, "picking a sound in settings plays it")
 end
 
 db.showMinimap = false

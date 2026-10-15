@@ -7,7 +7,7 @@ ns.DEFAULTS = {
 	shadow = true,
 	bgAlpha = 0.85,
 	hideInChat = true,
-	sound = true,
+	messageSound = "hush", -- "hush", "whisper" (the game's), a SharedMedia sound name, or "none"
 	takeOverReply = true,
 	takeOverWhispers = true,
 	keepFocus = false,
@@ -19,6 +19,7 @@ ns.DEFAULTS = {
 	-- x, y: where the top left corner of the next window goes, saved when a window is moved
 }
 
+local HUSH_SOUND = "Interface\\AddOns\\Hush\\media\\message.ogg"
 local HISTORY_LINES = 100
 local HISTORY_DAYS = 30
 local DEFERRED_MAX = 50
@@ -50,6 +51,20 @@ end
 
 function ns.IsChatLocked()
 	return chatLocked
+end
+
+-- On the master channel, so it is heard with sound effects turned down.
+function ns.PlayMessageSound(choice)
+	choice = choice or db.messageSound
+	if choice == "hush" then
+		PlaySoundFile(HUSH_SOUND, "Master")
+	elseif choice == "whisper" then
+		PlaySound(SOUNDKIT.TELL_MESSAGE, "Master")
+	elseif choice ~= "none" then
+		local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+		local path = LSM and LSM:Fetch("sound", choice, true)
+		if path then PlaySoundFile(path, "Master") end
+	end
 end
 
 -------------------------------------------------------------------------------
@@ -240,7 +255,7 @@ local function HandleWhisper(event, text, sender, guid, bnID, replayed)
 		ns.MarkUnread(c)
 		-- Blizzard only alerts for whispers it shows itself.
 		if db.hideInChat and not replayed then
-			if db.sound then PlaySound(SOUNDKIT.TELL_MESSAGE) end
+			ns.PlayMessageSound()
 			FlashClientIcon()
 		end
 	end
@@ -342,7 +357,9 @@ local function Init()
 		if db[key] == nil then db[key] = value end
 	end
 	db.history = db.history or {}
-	db.topBar, db.cleanIcons = nil, nil -- settings from an earlier version
+	-- Settings from earlier versions
+	if db.sound == false then db.messageSound = "none" end
+	db.sound, db.topBar, db.cleanIcons = nil, nil, nil
 	local cutoff = time() - HISTORY_DAYS * 86400
 	for key, h in pairs(db.history) do
 		if (h.t or 0) < cutoff then db.history[key] = nil end
