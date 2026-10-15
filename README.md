@@ -11,7 +11,7 @@ A World of Warcraft addon that puts each whisper conversation in its own clean w
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
 - `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and new whispers to it are counted on the minimap button instead of popping it up (optional).
 - The minimap button (also in the addon list under the minimap) lists your open and recent conversations. Right-click it for settings.
-- A soft message sound of its own, the game's whisper sound, any SharedMedia sound, or none. It plays on the master channel, so it's heard with sound effects turned down.
+- Ten soft message sounds of its own, from a single drop to a small chime, or the game's whisper sound, any SharedMedia sound, or none. It plays on the master channel, so it's heard with sound effects turned down.
 - The last 100 lines per person are kept for 30 days.
 - With EllesmereUI, its font and accent colour are used by default. Any SharedMedia font works, or a font file of your own.
 
@@ -59,7 +59,7 @@ Add `## OptionalDeps: Hush` to your TOC so Hush loads first.
 
 `lua5.1 tests/run.lua` runs Hush against a small fake of the WoW API; GitHub runs it on every push.
 
-The artwork is in `art/` as SVG; `logo.png` and `media/*.png` are rendered from it with `rsvg-convert`. The message sound is made by `art/message-sound.py`.
+The artwork is in `art/` as SVG; `logo.png` and `media/*.png` are rendered from it with `rsvg-convert`. The message sounds are made by `art/sounds.py`.
 
 ### Releasing to CurseForge
 

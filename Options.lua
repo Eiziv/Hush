@@ -22,7 +22,13 @@ end
 
 local function SoundOptions()
 	local container = Settings.CreateControlTextContainer()
-	container:Add("hush", "Hush")
+	for _, name in ipairs(ns.SOUNDS) do
+		if name == "hush" then
+			container:Add("hush", "Hush")
+		else
+			container:Add("hush:" .. name, "Hush: " .. name:gsub("^%l", string.upper))
+		end
+	end
 	container:Add("whisper", "Game whisper sound")
 	local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 	if LSM then

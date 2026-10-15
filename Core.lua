@@ -7,7 +7,7 @@ ns.DEFAULTS = {
 	shadow = true,
 	bgAlpha = 0.85,
 	hideInChat = true,
-	messageSound = "hush", -- "hush", "whisper" (the game's), a SharedMedia sound name, or "none"
+	messageSound = "hush", -- "hush", "hush:<name>", "whisper" (the game's), a SharedMedia sound name, or "none"
 	takeOverReply = true,
 	takeOverWhispers = true,
 	keepFocus = false,
@@ -19,7 +19,11 @@ ns.DEFAULTS = {
 	-- x, y: where the top left corner of the next window goes, saved when a window is moved
 }
 
-local HUSH_SOUND = "Interface\\AddOns\\Hush\\media\\message.ogg"
+local SOUND_PATH = "Interface\\AddOns\\Hush\\media\\sounds\\%s.ogg"
+-- Hush's own sounds, made by art/sounds.py. "hush" was the first and keeps its plain setting value.
+ns.SOUNDS = { "hush", "drop", "pebble", "glass", "feather", "bubble", "bell", "chime", "knock", "fall" }
+local isHushSound = {}
+for _, name in ipairs(ns.SOUNDS) do isHushSound[name] = true end
 local HISTORY_LINES = 100
 local HISTORY_DAYS = 30
 local DEFERRED_MAX = 50
@@ -56,8 +60,9 @@ end
 -- On the master channel, so it is heard with sound effects turned down.
 function ns.PlayMessageSound(choice)
 	choice = choice or db.messageSound
-	if choice == "hush" then
-		PlaySoundFile(HUSH_SOUND, "Master")
+	local own = choice == "hush" and "hush" or choice:match("^hush:(%a+)$")
+	if own and isHushSound[own] then
+		PlaySoundFile(SOUND_PATH:format(own), "Master")
 	elseif choice == "whisper" then
 		PlaySound(SOUNDKIT.TELL_MESSAGE, "Master")
 	elseif choice ~= "none" then
