@@ -1,6 +1,7 @@
 local _, ns = ...
 
 local category
+local LIST_HEIGHT = 20 * 16 -- about 16 entries, then the list scrolls
 local VAR_TYPES = { boolean = Settings.VarType.Boolean, number = Settings.VarType.Number, string = Settings.VarType.String }
 
 local function FontOptions()
@@ -33,6 +34,15 @@ local function SoundOptions()
 	return container:GetData()
 end
 
+-- Settings dropdowns lay long lists out as a grid of columns across the screen. One column
+-- that scrolls is easier to read; Blizzard calls customOptionHandler after adding the options.
+local function ScrollingList(initializer)
+	initializer.customOptionHandler = function(rootDescription)
+		rootDescription:SetGridMode(MenuConstants.VerticalGridDirection, 1)
+		rootDescription:SetScrollMode(LIST_HEIGHT)
+	end
+end
+
 local function OutlineOptions()
 	local container = Settings.CreateControlTextContainer()
 	container:Add("", "None")
@@ -59,8 +69,8 @@ function ns.BuildOptions()
 	end
 
 	local look = ns.ApplyLookAll
-	Settings.CreateDropdown(category, Setting("font", "Font", look), FontOptions,
-		"EllesmereUI font follows the font you picked in EllesmereUI. Any SharedMedia font works too, or /hush font <file path> for your own file.")
+	ScrollingList(Settings.CreateDropdown(category, Setting("font", "Font", look), FontOptions,
+		"EllesmereUI font follows the font you picked in EllesmereUI. Any SharedMedia font works too, or /hush font <file path> for your own file."))
 	Slider(Setting("fontSize", "Font size", look), 8, 24, 1, function(value)
 		return ("%d"):format(value)
 	end)
@@ -73,9 +83,9 @@ function ns.BuildOptions()
 	Settings.CreateCheckbox(category, Setting("showMinimap", "Minimap button", ns.UpdateMinimapButton), "Click for your conversations, right-click for these settings. Hush is also in the addon list under the minimap.")
 	Settings.CreateCheckbox(category, Setting("popMinimized", "New whispers reopen minimized windows"), "Off: a minimized window stays down and the minimap button counts its new lines.")
 	Settings.CreateCheckbox(category, Setting("hideInChat", "Hide whispers from the normal chat"), "While the game locks chat for addons (encounters, keys, PvP matches) whispers show in the normal chat anyway, and move into their window afterwards.")
-	Settings.CreateDropdown(category, Setting("messageSound", "Message sound", function(_, value)
+	ScrollingList(Settings.CreateDropdown(category, Setting("messageSound", "Message sound", function(_, value)
 		ns.PlayMessageSound(value) -- hear it when picking
-	end), SoundOptions, "Plays when a whisper arrives. It plays on the master channel, so it is heard with sound effects turned down.")
+	end), SoundOptions, "Plays when a whisper arrives. It plays on the master channel, so it is heard with sound effects turned down."))
 	Settings.CreateCheckbox(category, Setting("takeOverReply", "Reply key opens Hush", ns.UpdateReplyBinding), "Your reply key (R by default) opens the last whisper window instead of the chat box. It goes back to the normal reply while the game locks chat for addons.")
 	Settings.CreateCheckbox(category, Setting("takeOverWhispers", "Take over /w and Whisper buttons"), "/w Name, /r, right-click Whisper, the friends list and clicking names open Hush instead of the chat box, like WIM.\n\nThis closes Blizzard's chat box from addon code. During keys and raid bosses the game may then block messages typed in the normal chat box until you /reload. Hush tells you if that happens, and /hush check shows whether the chat box has been touched.")
 	Settings.CreateCheckbox(category, Setting("keepFocus", "Keep typing after sending"), "Off: Enter sends and hands the keyboard back to the game, like the normal chat.")

@@ -172,7 +172,9 @@ ChatFrameUtil = {
 	AddMessageEventFilter = function(event, fn) filters[event] = fn end,
 	InsertLink = function() return false end,
 }
-Settings = setmetatable({ OpenToCategory = function() optionsOpened = optionsOpened + 1 end, VarType = { Boolean = "boolean", Number = "number", String = "string" } }, { __index = function() return function()
+local dropdowns = {}
+MenuConstants = { VerticalGridDirection = 1 }
+Settings = setmetatable({ CreateDropdown = function(_, setting) local d = { setting = setting }; dropdowns[#dropdowns + 1] = d; return d end, OpenToCategory = function() optionsOpened = optionsOpened + 1 end, VarType = { Boolean = "boolean", Number = "number", String = "string" } }, { __index = function() return function()
 	return setmetatable({}, { __index = function() return function() return {} end end })
 end end })
 MinimalSliderWithSteppersMixin = { Label = {} }
@@ -239,6 +241,19 @@ local realPrint = io.write
 Fire("PLAYER_LOGIN")
 local db = HushDB
 check(overrides.R == "HUSH_REPLY" and overrides["SHIFT-R"] == "HUSH_REPLY2", "reply keys taken over at login")
+do
+	local scrolling = 0
+	for _, d in ipairs(dropdowns) do
+		if d.customOptionHandler then
+			local root = {}
+			function root:SetGridMode(direction, columns) self.columns = columns end
+			function root:SetScrollMode(height) self.height = height end
+			d.customOptionHandler(root)
+			if root.columns == 1 and root.height and root.height > 0 then scrolling = scrolling + 1 end
+		end
+	end
+	check(#dropdowns == 3 and scrolling == 2, "font and sound lists are one scrolling column; outline stays short")
+end
 
 check(Whisper("CHAT_MSG_WHISPER", "hey there", "Bob-MyRealm", 1, "Player-1") == true, "whisper hidden from normal chat")
 local c = ns.convos["w:bob-myrealm"]
