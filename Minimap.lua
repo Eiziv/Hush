@@ -169,7 +169,7 @@ function ns.UpdateBadge()
 		button.badge:SetShown(total > 0)
 		button.badge.text:SetText(total > 9 and "9+" or total)
 	end
-	ns.UpdateTopBarCount(total)
+	ns.FireUnreadChanged(total)
 end
 
 -- The addon compartment, the list under the minimap's addon button.

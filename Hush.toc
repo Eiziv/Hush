@@ -2,19 +2,21 @@
 ## Title: Hush
 ## Notes: Whispers in their own clean windows.
 ## Author: Gustaf Granström
-## Version: 0.1.0
+## Version: @project-version@
+## X-License: MIT
+## X-Website: https://github.com/Eiziv/Hush
 ## Category: Chat
 ## IconTexture: Interface\AddOns\Hush\media\icon.png
 ## AddonCompartmentFunc: Hush_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: Hush_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: Hush_OnAddonCompartmentLeave
 ## SavedVariables: HushDB
-## OptionalDeps: EllesmereUI, LibSharedMedia-3.0, NaowhUI_EUI
+## OptionalDeps: EllesmereUI, LibSharedMedia-3.0
 
 Core.lua
 Bubbles.lua
 Window.lua
 Takeover.lua
 Minimap.lua
-TopBar.lua
 Options.lua
+API.lua

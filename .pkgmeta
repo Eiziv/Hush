@@ -1,0 +1,10 @@
+package-as: Hush
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - art
+  - tests
+  - logo.png

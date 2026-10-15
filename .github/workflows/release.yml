@@ -1,0 +1,24 @@
+# Push a tag like v1.0.0 to build the zip and upload it to CurseForge and GitHub Releases.
+# Needs the CF_API_KEY secret and "## X-Curse-Project-ID" in Hush.toc; see README.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: sudo apt-get update && sudo apt-get install -y lua5.1
+      - run: lua5.1 tests/run.lua
+      - uses: BigWigsMods/packager@v2

@@ -2,18 +2,17 @@
 
 <img src="logo.png" alt="Hush" width="128">
 
-A World of Warcraft addon that puts each whisper conversation in its own clean window, like WIM, without the extras. It is styled to sit next to EllesmereUI.
+A World of Warcraft addon that puts each whisper conversation in its own clean window, like WIM, without the extras. It works on its own and is styled to sit next to EllesmereUI.
 
 - One window per person, for character whispers and Battle.net whispers.
-- Messages in bubbles like a chat app: theirs on the left, yours on the right in your EllesmereUI accent, with the time shown when a few minutes pass.
+- Messages in bubbles like a chat app: theirs on the left, yours on the right in your accent colour, with the time shown when a few minutes pass.
 - Whispers are taken out of the normal chat (optional).
 - `/w Name`, `/r`, right-click Whisper, the friends list and clicking a name all open Hush instead of the chat box, like WIM (can be turned off).
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
 - `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and new whispers to it are counted on the minimap button instead of popping it up (optional).
 - The minimap button (also in the addon list under the minimap) lists your open and recent conversations. Right-click it for settings.
-- With NaowhUI's top bar, Hush takes the Guild button's place and shows your unread whispers there (optional). NaowhUI's own button stays underneath, untouched. Friends, Hearthstone and M+ Portals get simple icons to match (optional; only the pictures change).
 - The last 100 lines per person are kept for 30 days.
-- Font follows your EllesmereUI font by default. Any SharedMedia font works, or a file of your own.
+- With EllesmereUI, its font and accent colour are used by default. Any SharedMedia font works, or a font file of your own.
 
 ## Light on purpose
 
@@ -37,8 +36,36 @@ Taking a whisper over from the chat box (`/w Name`, Whisper buttons) means closi
 
 Drag a window by its name, resize it from the bottom right corner. New windows open where you last moved one. Drag the minimap button to move it round the minimap; with EllesmereUI's minimap it sits in the button flyout with the others.
 
-The artwork is in `art/` as SVG; `logo.png` and `media/*.png` are rendered from it with `rsvg-convert`.
-
 ## Install
 
-Put the folder in `World of Warcraft/_retail_/Interface/AddOns/Hush`. Retail only.
+From CurseForge or the CurseForge app, or put the folder in `World of Warcraft/_retail_/Interface/AddOns/Hush`. Retail only.
+
+## For addon authors
+
+Hush has a small public API, so a data bar or another UI can show your whispers. Everything else in Hush is private and may change between versions.
+
+| Function | |
+| --- | --- |
+| `Hush.GetUnreadCount()` | Unread whisper lines across all conversations |
+| `Hush.GetConversations()` | Open and minimized conversations, newest first: `{ name, nameColor, unread, minimized }` |
+| `Hush.ShowMenu()` | The conversation menu at the cursor |
+| `Hush.OpenSettings()` | Hush's settings |
+| `Hush.RegisterCallback(func)` | `func(unreadCount)` runs whenever the unread count changes |
+
+Add `## OptionalDeps: Hush` to your TOC so Hush loads first.
+
+## Development
+
+`lua5.1 tests/run.lua` runs Hush against a small fake of the WoW API; GitHub runs it on every push.
+
+The artwork is in `art/` as SVG; `logo.png` and `media/*.png` are rendered from it with `rsvg-convert`.
+
+### Releasing to CurseForge
+
+Once:
+
+1. Create the project on CurseForge, with `logo.png` as its avatar and MIT as the license.
+2. Add its project ID to `Hush.toc` as `## X-Curse-Project-ID: 123456`.
+3. Create a CurseForge API token and add it to this repo's GitHub secrets as `CF_API_KEY`.
+
+Each release: add the version to `CHANGELOG.md`, then tag and push it, for example `git tag v1.0.0 && git push origin v1.0.0`. GitHub builds the zip, fills in the version and uploads it to CurseForge and GitHub Releases.
