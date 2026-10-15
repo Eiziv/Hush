@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="HUSH_REPLY" header="HUSH" category="ADDONS">
+		Hush.Reply()
+	</Binding>
+	<Binding name="HUSH_REPLY2" category="ADDONS">
+		Hush.Rewhisper()
+	</Binding>
+</Bindings>
