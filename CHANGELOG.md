@@ -2,7 +2,7 @@
 
 ## v1.0.0
 
-First release.
+First release, for Midnight and World of Warcraft: Forever.
 
 - One clean window per whisper conversation, for characters and Battle.net, in chat bubbles: theirs on the left, yours on the right.
 - Whispers leave the normal chat. `/w Name`, `/r`, Whisper buttons and clicked names open Hush instead (optional).

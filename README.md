@@ -39,7 +39,7 @@ Drag a window by its name, resize it from the bottom right corner. New windows o
 
 ## Install
 
-From CurseForge or the CurseForge app, or put the folder in `World of Warcraft/_retail_/Interface/AddOns/Hush`. Retail only.
+From CurseForge or the CurseForge app, or put the folder in `World of Warcraft/_retail_/Interface/AddOns/Hush`. Hush also runs in World of Warcraft: Forever, from `World of Warcraft/_forever_/Interface/AddOns/Hush`.
 
 ## For addon authors
 
