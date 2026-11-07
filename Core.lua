@@ -162,6 +162,16 @@ function ns.AddLine(c, inbound, text)
 	end
 end
 
+-- Someone on our own realm is whispered by name alone, as Blizzard's chat box does. WoW: Forever's
+-- internal realm names ("Name-CAMWOWEU4Realm6PvP") come back as "No player named".
+local function WhisperTarget(name)
+	local suffix = "-" .. GetNormalizedRealmName()
+	if strlower(name:sub(-#suffix)) == strlower(suffix) then
+		return name:sub(1, -#suffix - 1)
+	end
+	return name
+end
+
 function ns.Send(c, text)
 	if chatLocked then
 		ns.Notice(c, "The game blocks addon chat during encounters, keys and PvP matches. Use the normal chat box for now.")
@@ -176,7 +186,7 @@ function ns.Send(c, text)
 		local SendWhisper = C_BattleNet and C_BattleNet.SendWhisper or BNSendWhisper
 		SendWhisper(bnID, text)
 	else
-		C_ChatInfo.SendChatMessage(text, "WHISPER", nil, c.h.target)
+		C_ChatInfo.SendChatMessage(text, "WHISPER", nil, WhisperTarget(c.h.target))
 	end
 	return true
 end
