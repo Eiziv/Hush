@@ -9,7 +9,7 @@ A World of Warcraft addon that puts each whisper conversation in its own clean w
 - Whispers are taken out of the normal chat (optional).
 - `/w Name`, `/r`, right-click Whisper, the friends list and clicking a name all open Hush instead of the chat box, like WIM (can be turned off).
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
-- `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and new whispers to it are counted on the minimap button instead of popping it up (optional).
+- `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and a new whisper brings it back up. Or have minimized windows stay down and count new whispers on the minimap button instead.
 - The minimap button (also in the addon list under the minimap) lists your open and recent conversations. Right-click it for settings.
 - Ten soft message sounds of its own, from a single drop to a small chime, or the game's whisper sound, any SharedMedia sound, or none. It plays on the master channel, so it's heard with sound effects turned down.
 - The last 100 lines per person are kept for 30 days.

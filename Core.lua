@@ -11,7 +11,7 @@ ns.DEFAULTS = {
 	takeOverReply = true,
 	takeOverWhispers = true,
 	keepFocus = false,
-	popMinimized = false,
+	stayMinimized = false,
 	showMinimap = true,
 	minimapAngle = 210,
 	width = 360,
@@ -251,8 +251,8 @@ local function HandleWhisper(event, text, sender, guid, bnID, replayed)
 		lastOut = c
 	end
 
-	-- A minimized window stays down: the minimap button counts the unread lines.
-	if not ns.IsMinimized(c) or db.popMinimized then
+	-- A minimized window comes back up, unless set to stay down: then the minimap button counts the unread lines.
+	if not ns.IsMinimized(c) or not db.stayMinimized then
 		ns.Open(c)
 	end
 	ns.AddLine(c, inbound, text)
@@ -364,7 +364,8 @@ local function Init()
 	db.history = db.history or {}
 	-- Settings from earlier versions
 	if db.sound == false then db.messageSound = "none" end
-	db.sound, db.topBar, db.cleanIcons = nil, nil, nil
+	-- popMinimized was off by default; stayMinimized replaces it so everyone gets windows that come back up.
+	db.sound, db.topBar, db.cleanIcons, db.popMinimized = nil, nil, nil, nil
 	local cutoff = time() - HISTORY_DAYS * 86400
 	for key, h in pairs(db.history) do
 		if (h.t or 0) < cutoff then db.history[key] = nil end

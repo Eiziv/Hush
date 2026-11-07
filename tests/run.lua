@@ -485,8 +485,9 @@ end
 minBtn.scripts.OnClick(minBtn)
 check(ns.IsMinimized(c) and #ns.ActiveConvos() == 2, "minimize hides the window but keeps the conversation")
 c.unread = nil; erin.unread = nil; ns.UpdateBadge()
+db.stayMinimized = true
 Whisper("CHAT_MSG_WHISPER", "three", "Bob-MyRealm", 32, "Player-1")
-check(ns.IsMinimized(c) and c.unread == 1, "a new whisper leaves a minimized window down and counts it")
+check(ns.IsMinimized(c) and c.unread == 1, "set to stay down, a minimized window stays down and counts new whispers")
 check(mm.badge.shown and mm.badge.text.text == 1, "minimap badge shows the unread count")
 check(LastText(bf) == "three", "the line is in the minimized window for later")
 
@@ -509,10 +510,9 @@ ns.Open(c)
 for _, name in ipairs(UISpecialFrames) do local f = _G[name]; if f:IsShown() then f:Hide() end end
 check(ns.IsMinimized(c) and ns.IsMinimized(erin), "Escape in the game minimizes all Hush windows")
 
-db.popMinimized = true
+db.stayMinimized = false
 Whisper("CHAT_MSG_WHISPER", "four", "Bob-MyRealm", 33, "Player-1")
-check(bf.shown, "with the option on, a whisper reopens a minimized window")
-db.popMinimized = false
+check(bf.shown and not erin.frame.shown, "by default a whisper brings its minimized window back up, and only that one")
 
 Hush.Reply()
 check(erin.frame.shown or c.frame.shown, "reply restores a minimized window")
