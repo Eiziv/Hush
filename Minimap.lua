@@ -4,6 +4,8 @@ local _, ns = ...
 -- it up and restyles it like the others. No library needed for one button.
 
 local ICON = "Interface\\AddOns\\Hush\\media\\minimap.png"
+-- A flat white glyph: top bars tint their icons, and grey out coloured ones.
+local BROKER_ICON = "Interface\\AddOns\\Hush\\media\\broker.png"
 
 local button
 
@@ -76,14 +78,22 @@ function ns.ShowMenu()
 	end)
 end
 
+local function TooltipLines(tooltip, draggable)
+	tooltip:SetText("Hush")
+	local unread = ns.UnreadTotal()
+	if unread > 0 then
+		tooltip:AddLine(unread .. " new", ns.Accent())
+	end
+	tooltip:AddLine("Click: your conversations", 1, 1, 1)
+	tooltip:AddLine("Right-click: settings", 1, 1, 1)
+	if draggable then
+		tooltip:AddLine("Drag: move", 1, 1, 1)
+	end
+end
+
 local function ShowTooltip(owner)
 	GameTooltip:SetOwner(owner, "ANCHOR_LEFT")
-	GameTooltip:SetText("Hush")
-	GameTooltip:AddLine("Click: your conversations", 1, 1, 1)
-	GameTooltip:AddLine("Right-click: settings", 1, 1, 1)
-	if owner == button then
-		GameTooltip:AddLine("Drag: move", 1, 1, 1)
-	end
+	TooltipLines(GameTooltip, owner == button)
 	GameTooltip:Show()
 end
 
@@ -163,11 +173,32 @@ function ns.UpdateMinimapButton()
 	end
 end
 
+-- A LibDataBroker launcher, for the bars that show them: NaowhForever's top bar, Titan Panel and
+-- the like. Hush doesn't ship the library; with no other addon loading it, there is no launcher.
+local broker
+
+function ns.InitBroker()
+	local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
+	if not LDB or broker then return end
+	broker = LDB:NewDataObject("Hush", {
+		type = "launcher",
+		label = "Hush",
+		icon = BROKER_ICON,
+		text = "",
+		OnClick = OnClick,
+		OnTooltipShow = TooltipLines,
+	})
+end
+
 function ns.UpdateBadge()
 	local total = ns.UnreadTotal()
 	if button then
 		button.badge:SetShown(total > 0)
 		button.badge.text:SetText(total > 9 and "9+" or total)
+	end
+	if broker then
+		-- For displays that show a launcher's text; NaowhForever's bar shows only the icon.
+		broker.text = total > 0 and tostring(total) or ""
 	end
 	ns.FireUnreadChanged(total)
 end

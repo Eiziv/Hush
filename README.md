@@ -11,6 +11,7 @@ A World of Warcraft addon that puts each whisper conversation in its own clean w
 - Your reply key (R) opens the last whisper window. Shift-clicked links go into the window you are typing in.
 - `_` or Escape minimizes windows, `×` closes them. A minimized window keeps its conversation, and a new whisper brings it back up. Or have minimized windows stay down and count new whispers on the minimap button instead.
 - The minimap button (also in the addon list under the minimap) lists your open and recent conversations. Right-click it for settings.
+- Hush is also a LibDataBroker launcher, for top bars that show them, like NaowhForever's or Titan Panel. It appears when another addon has loaded LibDataBroker.
 - Ten soft message sounds of its own, from a single drop to a small chime, or the game's whisper sound, any SharedMedia sound, or none. It plays on the master channel, so it's heard with sound effects turned down.
 - The last 100 lines per person are kept for 30 days.
 - With EllesmereUI, its font and accent colour are used by default. Any SharedMedia font works, or a font file of your own.

@@ -133,7 +133,11 @@ local played = {}
 PlaySound = function(id, channel) played[#played + 1] = { "kit:" .. id, channel } end
 PlaySoundFile = function(path, channel) played[#played + 1] = { path, channel } end
 local lsmSounds = { Ding = "Sound\\ding.ogg" }
+local brokers = {}
 LibStub = function(name)
+	if name == "LibDataBroker-1.1" then
+		return { NewDataObject = function(_, key, obj) brokers[key] = obj; return obj end }
+	end
 	if name == "LibSharedMedia-3.0" then
 		return { Fetch = function(_, kind, key) return kind == "sound" and lsmSounds[key] or nil end, List = function() return {} end }
 	end
@@ -599,6 +603,20 @@ do
 	db.hideInChat = true
 	ns.PlayMessageSound("whisper")
 	check(Last()[1] == "kit:" .. SOUNDKIT.TELL_MESSAGE, "picking a sound in settings plays it")
+end
+
+do
+	local b = brokers.Hush
+	check(b and b.type == "launcher" and b.icon:find("broker.png", 1, true), "a LibDataBroker launcher for top bars")
+	local lines = {}
+	local tooltip = { SetText = function(_, t) lines[#lines + 1] = t end, AddLine = function(_, t) lines[#lines + 1] = t end }
+	b.OnTooltipShow(tooltip)
+	check(lines[1] == "Hush" and lines[#lines]:find("settings", 1, true), "its tooltip")
+	menu = nil
+	b.OnClick(nil, "LeftButton")
+	check(menu ~= nil, "clicking it opens the conversation menu")
+	Whisper("CHAT_MSG_WHISPER", "bar", "Bob-MyRealm", 80, "Player-1")
+	check(b.text ~= "" and tonumber(b.text) == ns.UnreadTotal(), "its text is the unread count")
 end
 
 db.showMinimap = false

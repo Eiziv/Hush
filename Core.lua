@@ -401,6 +401,7 @@ local function Init()
 
 	ns.UpdateReplyBinding()
 	ns.InitTakeover()
+	ns.InitBroker()
 	ns.UpdateMinimapButton()
 	ns.BuildOptions()
 end
